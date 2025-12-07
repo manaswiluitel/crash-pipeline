@@ -1,0 +1,36 @@
+# Python
+# Python
+__pycache__/
+*.pyc
+venv/
+
+# Go
+bin/
+*.exe
+
+# Environment + Secrets
+.env
+.env.local
+
+# Data folders (should NEVER go to GitHub change accordingly)
+minio-data/
+prometheus_data/
+grafana_data/
+duckdb-data/
+
+# Databases & Binary data
+*.duckdb
+*.wal
+*.db
+
+# Models
+*.pkl
+*.joblib
+
+# Logs
+*.log
+
+# OS / Editor
+.DS_Store
+.vscode/
+.idea/

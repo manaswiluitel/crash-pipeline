@@ -1,0 +1,33 @@
+{
+  "mode": "streaming",
+  "source": "crash",
+  "join_key": "crash_record_id",
+  "primary": {
+    "id": "85ca-t3if",
+    "alias": "crashes",
+    "where_by": { "since_days": 7 },
+    "order": "crash_date, crash_record_id",
+    "page_size": 2000
+  },
+  "enrich": [
+    {
+      "id": "68nd-jvt3",
+      "alias": "vehicles",
+      "select": "crash_record_id,make,model,vehicle_year,first_contact_point,travel_direction"
+    },
+    {
+      "id": "u6pd-qa9d",
+      "alias": "people",
+      "select": "crash_record_id,age,injury_classification,safety_equipment,airbag_deployed,ejection"
+    }
+  ],
+  "batching": {
+    "id_batch_size": 50,
+    "max_workers": { "vehicles": 4, "people": 4 }
+  },
+  "storage": {
+    "bucket": "raw-data",
+    "prefix": "crash",
+    "compress": true
+  }
+}
