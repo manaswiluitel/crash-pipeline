@@ -212,6 +212,52 @@ Access:
 
 ---
 
+## Running on Azure (Cloud Deployment)
+
+In addition to running locally, this pipeline has been successfully deployed and tested on a Microsoft Azure Virtual Machine. This section provides a summary of the cloud environment setup. After completing these one-time setup steps on the VM, the pipeline is run using the same `docker compose up -d` command.
+
+### VM Configuration
+
+The pipeline runs on an Azure VM with the following specifications:
+
+-   **Cloud Provider:** Microsoft Azure
+-   **Resource:** Virtual Machine
+-   **Operating System:** Ubuntu Server 24.04 LTS
+-   **Size:** A cost-effective instance (e.g., `Standard_B2s`) is sufficient.
+-   **Authentication:** SSH public key with the username `azureuser`.
+-   **Software Prerequisites:** The VM is provisioned with `git`, `docker`, `docker-compose`, `go`, and `python3`.
+
+### Network Configuration (Opened Ports)
+
+To access the services from the internet, the following inbound port rules were added in the Azure Portal under the VM's **Networking** settings. All rules are configured for TCP traffic.
+
+-   **`8501`**: Streamlit application UI
+-   **`3000`**: Grafana dashboards
+-   **`9090`**: Prometheus metrics server
+-   **`9001`**: MinIO Console UI
+-   **`22`**: SSH (enabled by default for remote management)
+
+### Folder Structure and Permissions
+
+Before the first run, a specific folder structure for persistent data storage was created in the project's root directory on the VM. Correct permissions are crucial for the containers to run without errors.
+
+-   **Folders Created:**
+    -   `minio-data/`
+    -   `prometheus_data/`
+    -   `grafana_data/`
+    -   `duckdb-data/`
+
+-   **Permissions:**
+    -   Standard folders were given ownership to the `azureuser` (`sudo chown -R $USER:$USER .`) and write permissions (`chmod -R 755 .`).
+    -   **Grafana Specific:** The `grafana_data` directory ownership was specifically set to the Grafana user ID to prevent permission errors: `sudo chown -R 472:472 grafana_data`.
+
+### Key Differences from Local Setup
+
+-   **Environment:** The pipeline runs on a dedicated Ubuntu server in the cloud instead of on a local machine (e.g., Windows with WSL or macOS).
+-   **Networking:** Services are accessed via the VM's **public IP address** (e.g., `http://<YOUR_PUBLIC_IP>:8501`) rather than `localhost`. This requires explicitly opening ports in the Azure firewall.
+-   **Initial Setup:** The VM requires manual installation of dependencies (Docker, Go, etc.) and manual creation of persistent data folders with specific permissions, which is not always necessary for a local Docker Desktop setup.
+-   **`.env` File:** The `.env` file must be created on the VM (e.g., by copying `.env.sample`) before starting the containers, ensuring the environment is configured correctly for the cloud host.
+
 ## Metrics & Extra Features
 
 To support detailed monitoring, the pipeline exposes a range of custom metrics, including but not limited to:
