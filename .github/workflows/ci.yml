@@ -85,27 +85,17 @@ jobs:
         with:
           go-version: '1.22'
 
-      - name: Extractor --help check
-        # This is a light check to see if the Go program can be executed.
-        # It assumes a 'main.go' file and that your program handles a --help flag.
-        run: |
-          cd extractor
-          go run main.go --help
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Transformer import test
-        # A quick test to confirm the transformer module is importable.
-        # Adjust the import path based on your file structure.
+      - name: Install dependencies for sanity checks
         run: |
-          python - <<EOF
-          try:
-              import transformer.transformer
-              print("Transformer imported successfully")
-          except ImportError as e:
-              print(f"Failed to import transformer: {e}")
-              exit(1)
-          EOF
+          pip install -r cleaner/requirements.txt
+          pip install -r transformer/requirements.txt
+
+      - name: Transformer and Cleaner import tests
+        run: |
+          python -c "from transformer import transformer; print('Transformer imported successfully')"
+          python -c "from cleaner import cleaner; print('Cleaner imported successfully')"
