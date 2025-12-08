@@ -337,3 +337,4 @@ If given more time, several enhancements would be prioritized:
 ---
 
 For implementation details (file structure, API references, or code examples), refer to the source code in the repository and any module‑specific documentation.
+.
