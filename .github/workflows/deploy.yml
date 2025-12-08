@@ -37,7 +37,7 @@ jobs:
           "
           
       - name: Smoke test – HTTP health checks
-        continue-on-error: true
+        # REMOVED continue-on-error. This step is now allowed to fail.
         id: smoke_test
         run: |
           ssh -i key.pem -o StrictHostKeyChecking=no "$AZURE_USER@$AZURE_HOST" '
@@ -56,10 +56,10 @@ jobs:
           
       - name: Debug Docker state on failure
         # --- THIS IS THE FIX ---
-        # We check the 'conclusion' instead of 'outcome' because 'continue-on-error' is true.
-        if: steps.smoke_test.conclusion == 'failure'
+        # This step will run if any previous step in the job has failed.
+        if: failure()
         run: |
-          echo "🔬 Smoke test failed. Collecting logs from failing services..."
+          echo "🔬 A previous step failed. Collecting logs from services..."
           ssh -i key.pem -o StrictHostKeyChecking=no "$AZURE_USER@$AZURE_HOST" '
             cd "$PROJECT_PATH"
             echo ""
@@ -72,4 +72,4 @@ jobs:
             echo "--- Logs for the Cleaner container ---"
             docker compose -f docker-compose.yml logs --tail="50" cleaner
           '
-          exit 1
+          # We don't need 'exit 1' here because the job is already in a failed state.
