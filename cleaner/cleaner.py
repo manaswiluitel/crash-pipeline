@@ -496,7 +496,7 @@ def clean_dataframe(data: pd.DataFrame, corr: str = "unknown") -> pd.DataFrame:
 # -----------------------------
 # DuckDB upsert
 # -----------------------------
-from duckdb_writer import ensure_schema_and_table, upsert_dataframe
+from .duckdb_writer import ensure_schema_and_table, upsert_dataframe
 import duckdb
 
 def upsert_to_gold(df: pd.DataFrame):
