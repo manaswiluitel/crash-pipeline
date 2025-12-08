@@ -36,7 +36,7 @@ jobs:
 
       - name: Install Python dependencies
         # Note: Adjust the path if your requirements.txt is not in the root directory.
-        run:
+        run: |
           pip install -r app/requirements.txt
           pip install -r  cleaner/requirements.txt
           pip install -r  transformer/requirements.txt
