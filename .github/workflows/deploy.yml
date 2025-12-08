@@ -12,7 +12,7 @@ jobs:
         run: |
           echo "$AZURE_SSH_KEY" > key.pem
           chmod 600 key.pem
-
+          
       - name: Deploy latest version on Azure VM
         run: |
           ssh -i key.pem -o StrictHostKeyChecking=no "$AZURE_USER@$AZURE_HOST" "
@@ -28,9 +28,8 @@ jobs:
             docker compose up -d
             echo '✅ Deployment commands finished.'
           "
-
+          
       - name: Smoke test – HTTP health checks
-        # We will try to run the smoke tests. If they fail, the next step will run.
         continue-on-error: true
         id: smoke_test
         run: |
@@ -41,23 +40,35 @@ jobs:
             sleep 30
             echo "🔍 Checking Streamlit health..."
             curl -f http://localhost:8501/_stcore/health
-            # (The other curl checks are here, but we will focus on the first failure)
+            echo "🔍 Checking Extractor health..."
+            curl -f http://localhost:8001/health
+            echo "🔍 Checking Transformer health..."
+            curl -f http://localhost:8002/health
+            echo "🔍 Checking Cleaner health..."
+            curl -f http://localhost:8003/health
+            echo "✅ All HTTP health checks passed."
           '
-
-      # --- THIS IS THE NEW DEBUGGING STEP ---
-      # This step will only run if the 'Smoke test' step above fails.
+          
       - name: Debug Docker state on failure
         if: steps.smoke_test.outcome == 'failure'
         run: |
           echo "🔬 Smoke test failed. Collecting debug information from the VM..."
           ssh -i key.pem -o StrictHostKeyChecking=no "$AZURE_USER@$AZURE_HOST" '
             cd "$PROJECT_PATH"
+            echo ""
             echo "--- Docker container status (docker ps -a) ---"
             docker ps -a
             echo ""
             echo "--- Logs for the Streamlit container ---"
-            # This command will print the logs, which should contain the Python error.
             docker compose logs --tail="50" streamlit
+            echo ""
+            echo "--- Logs for the Extractor container ---"
+            docker compose logs --tail="50" extractor
+            echo ""
+            echo "--- Logs for the Transformer container ---"
+            docker compose logs --tail="50" transformer
+            echo ""
+            echo "--- Logs for the Cleaner container ---"
+            docker compose logs --tail="50" cleaner
           '
-          # This line ensures the whole workflow fails, even though we collected logs.
           exit 1
