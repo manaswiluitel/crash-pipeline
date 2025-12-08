@@ -30,12 +30,17 @@ jobs:
       - name: Deploy latest version on Azure VM
         run: |
           ssh -i key.pem -o StrictHostKeyChecking=no "$AZURE_USER@$AZURE_HOST" "
-            cd \"$PROJECT_PATH\" && \
-            git pull && \
-            docker compose pull && \
-            docker compose build && \
-            docker compose down && \
+            set -e
+            cd \"$PROJECT_PATH\"
+            echo '🛑 Stopping any running services...'
+            docker compose down
+            echo '🚚 Pulling latest changes from Git...'
+            git pull
+            echo '🛠️ Building new container images...'
+            docker compose build
+            echo '🚀 Starting all services...'
             docker compose up -d
+            echo '✅ Deployment commands finished.'
           "
 
       - name: Smoke test – HTTP health checks
@@ -45,8 +50,12 @@ jobs:
 
             cd "$PROJECT_PATH"
 
+            echo "⏳ Waiting for services to stabilize..."
+            sleep 30
+
             echo "🔍 Checking Streamlit health..."
-            curl -f http://localhost:8501/health
+            # Streamlit's built-in health check is at /_stcore/health
+            curl -f http://localhost:8501/_stcore/health
 
             echo "🔍 Checking Extractor health..."
             curl -f http://localhost:8001/health
