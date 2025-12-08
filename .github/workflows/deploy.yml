@@ -37,3 +37,25 @@ jobs:
             docker compose down && \
             docker compose up -d
           "
+
+      - name: Smoke test – HTTP health checks
+        run: |
+          ssh -i key.pem -o StrictHostKeyChecking=no "$AZURE_USER@$AZURE_HOST" '
+            set -e
+
+            cd "$PROJECT_PATH"
+
+            echo "🔍 Checking Streamlit health..."
+            curl -f http://localhost:8501/health
+
+            echo "🔍 Checking Extractor health..."
+            curl -f http://localhost:8001/health
+
+            echo "🔍 Checking Transformer health..."
+            curl -f http://localhost:8002/health
+
+            echo "🔍 Checking Cleaner health..."
+            curl -f http://localhost:8003/health
+
+            echo "✅ All HTTP health checks passed."
+          '
