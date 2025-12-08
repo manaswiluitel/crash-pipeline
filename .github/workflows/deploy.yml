@@ -28,6 +28,7 @@ jobs:
             docker compose up -d
             echo '✅ Deployment commands finished.'
           "
+
       - name: Smoke test – HTTP health checks
         # We will try to run the smoke tests. If they fail, the next step will run.
         continue-on-error: true
