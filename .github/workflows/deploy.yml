@@ -55,7 +55,9 @@ jobs:
           '
           
       - name: Debug Docker state on failure
-        if: steps.smoke_test.outcome == 'failure'
+        # --- THIS IS THE FIX ---
+        # We check the 'conclusion' instead of 'outcome' because 'continue-on-error' is true.
+        if: steps.smoke_test.conclusion == 'failure'
         run: |
           echo "🔬 Smoke test failed. Collecting logs from failing services..."
           ssh -i key.pem -o StrictHostKeyChecking=no "$AZURE_USER@$AZURE_HOST" '
@@ -64,13 +66,8 @@ jobs:
             echo "--- Docker container status (docker ps -a) ---"
             docker ps -a
             echo ""
-            
-            # --- THIS IS THE CRITICAL CHANGE ---
-            # Get logs from the two services we know are unhealthy or restarting.
-            
             echo "--- Logs for the Transformer container ---"
             docker compose -f docker-compose.yml logs --tail="50" transformer
-            
             echo ""
             echo "--- Logs for the Cleaner container ---"
             docker compose -f docker-compose.yml logs --tail="50" cleaner
