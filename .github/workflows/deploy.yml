@@ -10,4 +10,30 @@ jobs:
     name: Deploy Pipeline to Azure
     runs-on: ubuntu-latest
 
+    env:
+      AZURE_HOST: ${{ secrets.AZURE_HOST }}
+      AZURE_USER: ${{ secrets.AZURE_USER }}
+      AZURE_SSH_KEY: ${{ secrets.AZURE_SSH_KEY }}
+      PROJECT_PATH: ${{ secrets.PROJECT_PATH }}
+
     steps:
+      - name: Set up SSH key
+        run: |
+          echo "$AZURE_SSH_KEY" > key.pem
+          chmod 600 key.pem
+
+      - name: Debug connection info (no secrets)
+        run: |
+          echo "Will try to connect to $AZURE_USER@$AZURE_HOST"
+          echo "Project path on VM: $PROJECT_PATH"
+
+      - name: Deploy latest version on Azure VM
+        run: |
+          ssh -i key.pem -o StrictHostKeyChecking=no "$AZURE_USER@$AZURE_HOST" "
+            cd \"$PROJECT_PATH\" && \
+            git pull && \
+            docker compose pull && \
+            docker compose build && \
+            docker compose down && \
+            docker compose up -d
+          "
