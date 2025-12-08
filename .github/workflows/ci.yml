@@ -58,6 +58,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Create .env file for validation
+        run: cp .env.sample .env
+
       - name: Build key services with docker compose
         # Note: Ensure these service names (extractor, transformer, etc.)
         # match the service names in your docker-compose.yml file.
