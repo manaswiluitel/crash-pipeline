@@ -45,7 +45,6 @@ jobs:
         # Note: Adjust these import paths to match your project's module structure.
         # For example, if your file is 'transformer/main.py', the import might be 'transformer.main'.
         run: |
-          export PYTHONPATH=$PYTHONPATH:./cleaner:./transformer
           python -c "import transformer.transformer"
           python -c "import cleaner.cleaner"
 
