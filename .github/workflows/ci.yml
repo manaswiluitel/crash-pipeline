@@ -5,7 +5,12 @@ name: CI Pipeline
 on:
   # Triggers the workflow on push events for all branches.
   push:
-    branches: ["*"]
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
 
 jobs:
   # --- JOB 1: Build and Validate Code ---
