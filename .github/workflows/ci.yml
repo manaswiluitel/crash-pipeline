@@ -34,7 +34,7 @@ jobs:
         with:
           python-version: '3.11' # Specify your Python version
 
-      - name's: Install Python dependencies
+      - name: Install Python dependencies
         # Note: Adjust the path if your requirements.txt is not in the root directory.
         run:
           pip install -r app/requirements.txt
