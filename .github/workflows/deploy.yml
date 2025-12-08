@@ -53,23 +53,3 @@ jobs:
             curl -f http://localhost:8003/health
             echo "✅ All HTTP health checks passed."
           '
-          
-      - name: Debug Docker state on failure
-        # --- THIS IS THE FIX ---
-        # This step will run if any previous step in the job has failed.
-        if: failure()
-        run: |
-          echo "🔬 A previous step failed. Collecting logs from services..."
-          ssh -i key.pem -o StrictHostKeyChecking=no "$AZURE_USER@$AZURE_HOST" '
-            cd "$PROJECT_PATH"
-            echo ""
-            echo "--- Docker container status (docker ps -a) ---"
-            docker ps -a
-            echo ""
-            echo "--- Logs for the Transformer container ---"
-            docker compose -f docker-compose.yml logs --tail="50" transformer
-            echo ""
-            echo "--- Logs for the Cleaner container ---"
-            docker compose -f docker-compose.yml logs --tail="50" cleaner
-          '
-          # We don't need 'exit 1' here because the job is already in a failed state.
