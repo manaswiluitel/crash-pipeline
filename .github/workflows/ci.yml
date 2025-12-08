@@ -53,10 +53,7 @@ jobs:
   docker-validation:
     name: Docker Compose Validation
     runs-on: ubuntu-latest
-    needs: build # Ensures this job only runs if the 'build' job succeeds.
-    defaults:
-      run:
-        working-directory: ./crash-pipeline
+    needs: build
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -64,15 +61,11 @@ jobs:
       - name: Build key services with docker compose
         # Note: Ensure these service names (extractor, transformer, etc.)
         # match the service names in your docker-compose.yml file.
-        run: |
-          docker compose -f docker-compose.yml build extractor
-          docker compose -f docker-compose.yml build transformer
-          docker compose -f docker-compose.yml build cleaner
-          docker compose -f docker-compose.yml build app
+        run: docker compose build extractor transformer cleaner app
 
       - name: Validate docker-compose.yml
         # This command parses the compose file and reports any syntax errors or unresolved variables.
-        run: docker compose -f docker-compose.yml config
+        run: docker compose config
 
   # --- JOB 3: Sanity Check Entrypoints ---
   # This job runs after 'docker-validation' and performs lightweight checks on the services.
